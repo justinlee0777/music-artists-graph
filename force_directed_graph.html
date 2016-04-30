@@ -72,10 +72,6 @@ d3.json("sample.json", function(error, json) {
 
 function update() {
 
-console.log(d3.select(".node"));
-
-  d3.select(".node").html("");
-
   var nodes = [];
   var links = [];
   var prev_source;
@@ -103,11 +99,13 @@ console.log(d3.select(".node"));
       link.source = nodeById.get(link.source.id);
       link.target = nodeById.get(link.target.id);
 
-      if( source_nodes.has(link.target.id) === true ) {
+      if( source_nodes.has(link.target.id) === true && link.source.showNode === true) {
+        links.push(link);
         return;
       } else if( link.source.showNode !== true ) {
         return;
       }
+
       var target_node = nodes.find( function find_node(node) {
         return node.id === link.target.id;
       });
@@ -124,11 +122,9 @@ console.log(d3.select(".node"));
         link.target.prev_source = link.source.id;
         link.target.group = highest_group;
       }
-      if ( link.target.id == "Pop Evil")
-        console.log(link);
       links.push(link);
   });
-
+console.log("=============== " + highest_group + " ===============");
   // Restart the force layout.
   force
       .nodes(data.nodes)
@@ -138,27 +134,22 @@ console.log(d3.select(".node"));
   // Update links.
   link_data = link_data.data(links, function(d) { return d.id; });
 
+  link_data.exit().remove();
+
+
   link_data.enter().insert("line", ".node")
       .attr("class", "link")
       .style("stroke-width", function(d) { return Math.log(d.value); })
-      /*.style("stroke-dasharray", function(d) {
-        var value = 300/d.value + "," + 300/d.value;
-        return value;
-      })*/
       .style("opacity", function(d) { return ( Math.log(d.value)/10 ) - 0.2; });
 
-  link_data.exit().remove();
 
     // Update nodes.
   node_data = node_data.data(nodes, function(d) { return d.id; });
 
+  node_data.exit().remove();  
+
   node_data.enter().append("g")
       .attr("class", "node")
-      .attr("fill", function(d) {
-         if( d.group != undefined )
-           return colors(d.group);
-        return undefined;
-      })
       .call(force.drag)
       .on("mouseover", function() {
         d3.select(this)
@@ -172,6 +163,12 @@ console.log(d3.select(".node"));
             .style("visibility","hidden")
       })
       .on("click", click);
+
+  node_data.attr("fill", function(d) {
+         if( d.group != undefined )
+           return colors(d.group);
+        return undefined;
+      })
 
   node_data.append("circle")
       .attr("r", function(d) { return d.value/100; });
@@ -187,7 +184,6 @@ console.log(d3.select(".node"));
         return "hidden";
       });
 
-  node_data.exit().remove();  
 
 }
 
