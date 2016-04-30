@@ -72,6 +72,10 @@ d3.json("sample.json", function(error, json) {
 
 function update() {
 
+console.log(d3.select(".node"));
+
+  d3.select(".node").html("");
+
   var nodes = [];
   var links = [];
   var prev_source;
@@ -132,11 +136,9 @@ function update() {
       .start();
 
   // Update links.
-  link_data = link_data.data(links);
+  link_data = link_data.data(links, function(d) { return d.id; });
 
-  link_data.exit().remove();
-  
-  link_data.enter().append("line")
+  link_data.enter().insert("line", ".node")
       .attr("class", "link")
       .style("stroke-width", function(d) { return Math.log(d.value); })
       /*.style("stroke-dasharray", function(d) {
@@ -145,10 +147,10 @@ function update() {
       })*/
       .style("opacity", function(d) { return ( Math.log(d.value)/10 ) - 0.2; });
 
+  link_data.exit().remove();
+
     // Update nodes.
   node_data = node_data.data(nodes, function(d) { return d.id; });
-
-  node_data.exit().remove();
 
   node_data.enter().append("g")
       .attr("class", "node")
@@ -184,6 +186,8 @@ function update() {
           return "visible";
         return "hidden";
       });
+
+  node_data.exit().remove();  
 
 }
 
