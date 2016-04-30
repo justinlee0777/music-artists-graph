@@ -22,6 +22,7 @@
 
 // add individual ids to each link
 
+// size of graph space
 var width = 1400,
     height = 900
 
@@ -29,6 +30,7 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
+// force layout
 var force = d3.layout.force()
     .gravity(0.05)
     .linkDistance(100)
@@ -36,40 +38,58 @@ var force = d3.layout.force()
     .size([width, height])
     .on("tick", tick);
 
+// gives colors for each source node and nodes of multiple in-degrees
 var colors = d3.scale.category10();
 
+// provides the source nodes (can be switched over to d3's selection functions, but may be more efficient)
+//   (one-time insert)
 var source_nodes = d3.set([]);
 
+// the highest distinct group of nodes
 var highest_group = 0;
 
+// data for the nodes and links that make it to the data
 var link_data = svg.selectAll(".link"),
     node_data = svg.selectAll(".node");
+
+// map of node id to node
 var nodeById;
+
+// the JSON data
 var data;
 
+// runs once
 d3.json("sample.json", function(error, json) {
   if (error) throw error;
 
+  // create the map
   nodeById = d3.map();
+
+  // insert nodes into the map,
   json.nodes.forEach(function(node) {
       nodeById.set(node.id, node);
+      // if the node is a source node (as its group is undefined),
       if(node.group != undefined) {
+        // set the "showNode" field and add the node to the 'source_nodes' set
         node.showNode = true;
         source_nodes.add(node.id);
       }
   });
 
+  // alter the JSON file so that the link's refer to the link objects rather than just the ID
   json.links.forEach(function(link) {
       link.source = nodeById.get(link.source);
       link.target = nodeById.get(link.target);
   });
-  data = json;
 
+  // save the JSON file
+  data = json;
 
   update();
 
 });
 
+// update for each change in the graph
 function update() {
 
   var nodes = [];
@@ -77,6 +97,9 @@ function update() {
   var prev_source;
   highest_group = 0;
 
+  // find the highest group,
+  //   and assign all non-source nodes 'undefined' for previous nodes they have connected to and set their group to 0
+  //   (flaw: have each non-source node store their connecting nodes)
   data.nodes.forEach(function(node) {
       if( source_nodes.has(node.id) === true ) {
         if(highest_group < node.group) {
@@ -91,31 +114,41 @@ function update() {
 
   data.links.forEach(function(link) {
 
+      // change the previous source once the source changes
+      //   (assumes all common link sources are grouped together in file)
       if( prev_source !== link.source.id ) {
         prev_source = link.source.id;
         assigned_newcolor = false;
       }
 
+      // update link source and target if attributes change
       link.source = nodeById.get(link.source.id);
       link.target = nodeById.get(link.target.id);
 
+      // if target node is a source node, but the edge should be shown,
       if( source_nodes.has(link.target.id) === true && link.source.showNode === true) {
+        // add the edge but do not analyze the node
         links.push(link);
         return;
+      // if the edge should not be shown, don't push
       } else if( link.source.showNode !== true ) {
         return;
       }
 
+      // see if target node has already been added to list of nodes
       var target_node = nodes.find( function find_node(node) {
         return node.id === link.target.id;
       });
 
+      // if target node does not exist, push onto list and have its group equal to the source's group
       if(target_node === undefined) {
         nodes.push(link.target);
         link.target.group = link.source.group;
       } else {
+        // if the target node has a degree > 0,
         if( prev_source !== link.target.prev_source 
               && assigned_newcolor !== true) {
+          // assign it a new color group
           highest_group++;
           assigned_newcolor = true;
         }
@@ -124,7 +157,7 @@ function update() {
       }
       links.push(link);
   });
-console.log("=============== " + highest_group + " ===============");
+
   // Restart the force layout.
   force
       .nodes(data.nodes)
@@ -136,43 +169,47 @@ console.log("=============== " + highest_group + " ===============");
 
   link_data.exit().remove();
 
-
+  // add links, with stroke-width and opacity dependent on strength
   link_data.enter().insert("line", ".node")
       .attr("class", "link")
       .style("stroke-width", function(d) { return Math.log(d.value); })
       .style("opacity", function(d) { return ( Math.log(d.value)/10 ) - 0.2; });
 
 
-    // Update nodes.
+  // Update nodes.
   node_data = node_data.data(nodes, function(d) { return d.id; });
 
   node_data.exit().remove();  
 
+  // add nodes, with mouse events added
   node_data.enter().append("g")
       .attr("class", "node")
       .call(force.drag)
+      // if a mouse is over non-source node, show text
       .on("mouseover", function() {
-        d3.select(this)
-          .select("text")
-          .style("visibility","visible")
-     })
-      .on("mouseout", function(d) {
-        if( !source_nodes.has(d.id) ) 
+        if( !source_nodes.has(d.id) ) {
           d3.select(this)
             .select("text")
-            .style("visibility","hidden")
+            .style("visibility","visible");
+        }
+     })
+      .on("mouseout", function(d) {
+        if( !source_nodes.has(d.id) ) {
+          d3.select(this)
+            .select("text")
+            .style("visibility","hidden");
+        }
       })
       .on("click", click);
 
-  node_data.attr("fill", function(d) {
-         if( d.group != undefined )
-           return colors(d.group);
-        return undefined;
-      })
+  // color nodes
+  node_data.attr("fill", function(d) { return colors(d.group); })
 
+  // create literal node circles
   node_data.append("circle")
       .attr("r", function(d) { return d.value/100; });
 
+  // add text; if source node, always show text
   node_data.append("text")
       .attr("dx", 14)
       .attr("dy", ".5em")
