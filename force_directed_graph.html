@@ -95,11 +95,11 @@ function update() {
   var nodes = [];
   var links = [];
   var prev_source;
+  var color_group = d3.map();
   highest_group = 0;
 
   // find the highest group,
   //   and assign all non-source nodes 'undefined' for previous nodes they have connected to and set their group to 0
-  //   (flaw: have each non-source node store their connecting nodes)
   data.nodes.forEach(function(node) {
       if( source_nodes.has(node.id) === true ) {
         if(highest_group < node.group) {
@@ -118,7 +118,6 @@ function update() {
       //   (assumes all common link sources are grouped together in file)
       if( prev_source !== link.source.id ) {
         prev_source = link.source.id;
-        assigned_newcolor = false;
       }
 
       // update link source and target if attributes change
@@ -144,16 +143,19 @@ function update() {
       if(target_node === undefined) {
         nodes.push(link.target);
         link.target.group = link.source.group;
-      } else {
-        // if the target node has a degree > 0,
-        if( prev_source !== link.target.prev_source 
-              && assigned_newcolor !== true) {
-          // assign it a new color group
-          highest_group++;
-          assigned_newcolor = true;
-        }
         link.target.prev_source = link.source.id;
-        link.target.group = highest_group;
+      } else {         
+        // if the target node has a degree > 0,
+        if( prev_source !== link.target.prev_source ) {
+          var group_name = link.target.prev_source + "," + link.source.id;
+          if( color_group.has(group_name) !== true ) {
+          // assign it a new color group
+console.log(group_name);
+            color_group.set(group_name, ++highest_group);
+          }
+          link.target.prev_source = group_name;
+          link.target.group = highest_group;
+        }
       }
       links.push(link);
   });
@@ -186,7 +188,7 @@ function update() {
       .attr("class", "node")
       .call(force.drag)
       // if a mouse is over non-source node, show text
-      .on("mouseover", function() {
+      .on("mouseover", function(d) {
         if( !source_nodes.has(d.id) ) {
           d3.select(this)
             .select("text")
