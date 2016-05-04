@@ -102,6 +102,8 @@ function update() {
 
   var nodes = [];
   var links = [];
+  var max_link_value = 0;
+  var min_link_value = Number.MAX_SAFE_INTEGER;
   var color_group = d3.map();
 
   data.nodes.forEach(function(node) {
@@ -111,6 +113,12 @@ function update() {
   });
 
   data.links.forEach(function(link) {
+
+      if(link.value > max_link_value) {
+        max_link_value = link.value;
+      } else if(link.value < min_link_value) {
+        min_link_value = link.value;
+      }
 
       // update link source and target if attributes change
       link.source = nodeById.get(link.source.id);
@@ -151,8 +159,11 @@ function update() {
   // add links, with stroke-width and opacity dependent on strength
   link_data.enter().insert("line", ".node")
       .attr("class", "link")
-      .style("stroke-width", function(d) { return Math.log(d.value); })
-      .style("opacity", function(d) { return ( Math.log(d.value)/10 ) - 0.2; });
+      .style("stroke-width", function(d) { return ( (d.value - min_link_value)/(max_link_value - min_link_value) ) * 15; })
+      .style("opacity", function(d) { 
+console.log(Math.pow(Math.log(d.value), 2) - 30);
+//console.log( ( ( Math.log(d.value)/10 ) - 0.45 )); 
+        return ( Math.log(d.value)/10 ) - 0.45; });
 
 
   // Update nodes.
@@ -192,11 +203,12 @@ return node_size(d);
         return d.value/2;*/ });
 
   // add text; if source node, always show text
-  node_data.insert("text", ".link")
+  node_data.insert("text", "node.circle")
       .attr("dx", 14)
       .attr("dy", ".5em")
       .text(function(d) { return d.id; })
-      .style("fill", "red")
+      .style("fill", "black")
+      .style("font-weight", "bold")
       .style("visibility",function(d) {
         if( source_nodes.has(d.id) )
           return "visible";
@@ -233,5 +245,6 @@ function tick() {
   node_data.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
 }
+
 
 </script>
