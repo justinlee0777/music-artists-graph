@@ -302,6 +302,7 @@ def addNodes(sorted_artist_dict, user_artist, number_related_artists, max_node_v
 		tmp_node_json['value'] = node_size_dict[user_artist]
 		# tmp_node_json['group'] = source_groups[user_artist]
 		tmp_node_json['group'] = assignGroup(user_artist)
+		tmp_node_json['source'] = 'true'
 		# print (node_size_dict[user_input]-min_node_value)
 		# print float((max_node_value-min_node_value))
 
@@ -333,87 +334,93 @@ def addNodes(sorted_artist_dict, user_artist, number_related_artists, max_node_v
 			# else:
 			# 	tmp_node_json['group'] = assignGroup(tmp_artist_tuple[0])
 			tmp_node_json['group'] = assignGroup(tmp_artist_tuple[0])
+			if tmp_artist_tuple[0] in source_groups:
+				tmp_node_json['source'] = 'true'
+			else:
+				tmp_node_json['source'] = 'false'
 				
 			# tmp_node_json['value'] = max_node_value - node_size_dict[tmp_artist_tuple[0]] + 1
 			graph_json['nodes'].append(tmp_node_json)
 
-def createJSONDict(sorted_artist_dict, user_artist, number_related_artists, max_node_value, min_node_value):
-	# graph_json = {}
-	# graph_json['nodes'] = []
-	# graph_json['links'] = []
+# def createJSONDict(sorted_artist_dict, user_artist, number_related_artists, max_node_value, min_node_value):
+# 	# graph_json = {}
+# 	# graph_json['nodes'] = []
+# 	# graph_json['links'] = []
 
-	###########################
-	# user_artist = formatArtist2(user_input, ' ')
-	# user_artist = user_input
+# 	###########################
+# 	# user_artist = formatArtist2(user_input, ' ')
+# 	# user_artist = user_input
 	
 
 
-	# max_node_value = node_size_dict[max(node_size_dict, key=lambda i: node_size_dict[i])]
-	# min_node_value = node_size_dict[min(node_size_dict, key=lambda i: node_size_dict[i])]
+# 	# max_node_value = node_size_dict[max(node_size_dict, key=lambda i: node_size_dict[i])]
+# 	# min_node_value = node_size_dict[min(node_size_dict, key=lambda i: node_size_dict[i])]
 	
-	# print "max_node_value =", max_node_value
-	# print "min_node_value =", min_node_value
-	# print user_artist
-	if user_artist not in nodes_list:
-		nodes_list.append(user_artist)
-		tmp_node_json = {}
-		tmp_node_json['id'] = user_artist
-		tmp_node_json['value'] = node_size_dict[user_artist]
-		# tmp_node_json['group'] = source_groups[user_artist]
-		tmp_node_json['group'] = assignGroup(user_artist)
-		# print (node_size_dict[user_input]-min_node_value)
-		# print float((max_node_value-min_node_value))
+# 	# print "max_node_value =", max_node_value
+# 	# print "min_node_value =", min_node_value
+# 	# print user_artist
+# 	if user_artist not in nodes_list:
+# 		nodes_list.append(user_artist)
+# 		tmp_node_json = {}
+# 		tmp_node_json['id'] = user_artist
+# 		tmp_node_json['value'] = node_size_dict[user_artist]
+# 		# tmp_node_json['group'] = source_groups[user_artist]
+# 		tmp_node_json['group'] = assignGroup(user_artist)
+# 		tmp_node_json['source'] = 'true'
+# 		# print (node_size_dict[user_input]-min_node_value)
+# 		# print float((max_node_value-min_node_value))
 
-		# tmp_value = (1-(node_size_dict[user_input]-min_node_value)/float((max_node_value-min_node_value)))*100+1
-		# tmp_node_json['value'] = max_node_value - node_size_dict[user_artist] + 1
-		# print tmp_value, "\n"
-		# tmp_node_json['value'] = tmp_value
-		graph_json['nodes'].append(tmp_node_json)
+# 		# tmp_value = (1-(node_size_dict[user_input]-min_node_value)/float((max_node_value-min_node_value)))*100+1
+# 		# tmp_node_json['value'] = max_node_value - node_size_dict[user_artist] + 1
+# 		# print tmp_value, "\n"
+# 		# tmp_node_json['value'] = tmp_value
+# 		graph_json['nodes'].append(tmp_node_json)
 
-	# Get the top related artists
-	# number_related_artists = 10
-	# related_artist_names = []
-	if len(sorted_artist_dict) < number_related_artists:
-		number_related_artists = len(sorted_artist_dict)
-	for i in range(0, number_related_artists):
-		# related_artist_names.append(sorted_artist_dict[i][0])
-		tmp_artist_tuple = sorted_artist_dict[i]
+# 	# Get the top related artists
+# 	# number_related_artists = 10
+# 	# related_artist_names = []
+# 	if len(sorted_artist_dict) < number_related_artists:
+# 		number_related_artists = len(sorted_artist_dict)
+# 	for i in range(0, number_related_artists):
+# 		# related_artist_names.append(sorted_artist_dict[i][0])
+# 		tmp_artist_tuple = sorted_artist_dict[i]
 
-		print tmp_artist_tuple[0]
+# 		print tmp_artist_tuple[0]
 
-		tmp_link_json = {}
-		tmp_link_json['source'] = user_artist
-		tmp_link_json['target'] = tmp_artist_tuple[0]
-		link_tuple = (user_artist, tmp_artist_tuple[0])
-		# if link_tuple not in link_scores_dict:
-		# 	# print link_scores_dict
-		# 	tmp_link_json['value'] = 10
-			# print "link tuple =", link_tuple
-		# else:
-			# tmp_link_json['value'] = link_scores_dict[link_tuple]
-		tmp_link_json['value'] = link_scores_dict[link_tuple]
-		# tmp_link_json['value'] = 3
-		graph_json['links'].append(tmp_link_json)
+# 		tmp_link_json = {}
+# 		tmp_link_json['source'] = user_artist
+# 		tmp_link_json['target'] = tmp_artist_tuple[0]
+# 		link_tuple = (user_artist, tmp_artist_tuple[0])
+# 		# if link_tuple not in link_scores_dict:
+# 		# 	# print link_scores_dict
+# 		# 	tmp_link_json['value'] = 10
+# 			# print "link tuple =", link_tuple
+# 		# else:
+# 			# tmp_link_json['value'] = link_scores_dict[link_tuple]
+# 		tmp_link_json['value'] = link_scores_dict[link_tuple]
+# 		# tmp_link_json['value'] = 3
+# 		graph_json['links'].append(tmp_link_json)
 
-		if tmp_artist_tuple[0] not in nodes_list:
-			# print tmp_artist_tuple[0]
-			# print user_input
-			nodes_list.append(tmp_artist_tuple[0])
-			tmp_node_json = {}
-			tmp_node_json['id'] = tmp_artist_tuple[0]
-			# tmp_node_json['value'] = tmp_artist_tuple[1]
-			# tmp_value = (1-(node_size_dict[tmp_artist_tuple[0]]-min_node_value)/float((max_node_value-min_node_value)))*100+1
-			# tmp_node_json['value'] = tmp_value
-			# print tmp_value
-			tmp_node_json['value'] = node_size_dict[tmp_artist_tuple[0]]
-			# if tmp_artist_tuple[0] in source_groups:
-			# 	tmp_node_json['group'] = source_groups[tmp_artist_tuple[0]]
-			# else:
-			# 	tmp_node_json['group'] = assignGroup(tmp_artist_tuple[0])
-			tmp_node_json['group'] = assignGroup(tmp_artist_tuple[0])
+# 		if tmp_artist_tuple[0] not in nodes_list:
+# 			# print tmp_artist_tuple[0]
+# 			# print user_input
+# 			nodes_list.append(tmp_artist_tuple[0])
+# 			tmp_node_json = {}
+# 			tmp_node_json['id'] = tmp_artist_tuple[0]
+# 			# tmp_node_json['value'] = tmp_artist_tuple[1]
+# 			# tmp_value = (1-(node_size_dict[tmp_artist_tuple[0]]-min_node_value)/float((max_node_value-min_node_value)))*100+1
+# 			# tmp_node_json['value'] = tmp_value
+# 			# print tmp_value
+# 			tmp_node_json['value'] = node_size_dict[tmp_artist_tuple[0]]
+# 			# if tmp_artist_tuple[0] in source_groups:
+# 			# 	tmp_node_json['group'] = source_groups[tmp_artist_tuple[0]]
+# 			# else:
+# 			# 	tmp_node_json['group'] = assignGroup(tmp_artist_tuple[0])
+# 			tmp_node_json['group'] = assignGroup(tmp_artist_tuple[0])
+# 			if 
 				
-			# tmp_node_json['value'] = max_node_value - node_size_dict[tmp_artist_tuple[0]] + 1
-			graph_json['nodes'].append(tmp_node_json)
+# 			# tmp_node_json['value'] = max_node_value - node_size_dict[tmp_artist_tuple[0]] + 1
+# 			graph_json['nodes'].append(tmp_node_json)
 
 
 	# return graph_json
@@ -431,7 +438,7 @@ def driver(user_input):
 	artist_name = api_tuple[1]
 	# sorted_related_artists = findRelatedArtists(events, user_input)
 	sorted_related_artists = findRelatedArtists(events, artist_name)
-	number_related_artists = 5
+	number_related_artists = 10
 	# extrema = findNodeValueExtrema(number_related_artists, sorted_related_artists, user_input)
 	# extrema = findNodeValueExtrema(number_related_artists, sorted_related_artists, artist_name)
 	# max_node_value = extrema[0]
@@ -467,6 +474,9 @@ number_arguments = int(sys.argv[1])
 if 3 <= len(sys.argv) <= 6:
 	if 1 <= number_arguments <= 3:
 
+		##########################
+		# Check here to fix special char issue (i.e. beyonce)
+
 		for i in range(2, number_arguments+2):
 			user_input = sys.argv[i]
 			user_artist = formatArtist2(user_input, ' ')
@@ -492,23 +502,23 @@ if 3 <= len(sys.argv) <= 6:
 
 
 
-		number_related_artists = 5
+		number_related_artists = 50
 		for i in range(0, len(related_artists_and_input)):
 			addLinks(related_artists_and_input[i][0], related_artists_and_input[i][1], number_related_artists, 1, 1)
 		for i in range(0, len(related_artists_and_input)):
 			addNodes(related_artists_and_input[i][0], related_artists_and_input[i][1], number_related_artists, 1, 1)
 			# createJSONDict(related_artists_and_input[i][0], related_artists_and_input[i][1], number_related_artists, 1, 1)
 
-		# print graph_json
+		print graph_json
 
 		# print link_scores_dict
 
 		# print source_groups
 		# print node_colors
-		print link_dict
+		# print link_dict
 
 
-		with open('small_sample.json', 'w') as fp:
+		with open('graph_data.json', 'w') as fp:
 			json.dump(graph_json, fp)
 
 
