@@ -32,9 +32,9 @@ var svg = d3.select("body").append("svg")
 
 // force layout
 var force = d3.layout.force()
-    .gravity(0.05)
-    .linkDistance(100)
-    .charge(-120)
+    .gravity(0.2)
+    .distance(300)
+    .charge(-300)
     .size([width, height])
     .on("tick", tick);
 
@@ -55,11 +55,14 @@ var link_data = svg.selectAll(".link"),
 // map of node id to node
 var nodeById;
 
+var max_value = 0;
+var min_value = Number.MAX_SAFE_INTEGER;
+
 // the JSON data
 var data;
 
 // runs once
-d3.json("sample.json", function(error, json) {
+d3.json("graph_data.json", function(error, json) {
   if (error) throw error;
 
   // create the map
@@ -69,10 +72,15 @@ d3.json("sample.json", function(error, json) {
   json.nodes.forEach(function(node) {
       nodeById.set(node.id, node);
       // if the node is a source node (as its group is undefined),
-      if(node.group != undefined) {
+      if(node.source == 'true') {
         // set the "showNode" field and add the node to the 'source_nodes' set
         node.showNode = true;
         source_nodes.add(node.id);
+      }
+      if(node.value > max_value) {
+        max_value = node.value;
+      } else if(node.value < min_value) {
+        min_value = node.value;
       }
   });
 
@@ -94,33 +102,15 @@ function update() {
 
   var nodes = [];
   var links = [];
-  var prev_source;
   var color_group = d3.map();
 
-/*  highest_group = 0;
-
-  // find the highest group,
-  //   and assign all non-source nodes 'undefined' for previous nodes they have connected to and set their group to 0
   data.nodes.forEach(function(node) {
       if( source_nodes.has(node.id) === true ) {
-        if(highest_group < node.group) {
-          highest_group = node.group;
-        }
         nodes.push(node);
-      } else {
-        node.prev_source = undefined;
-        node.group = 0;
       }
   });
-*/
 
   data.links.forEach(function(link) {
-
-      // change the previous source once the source changes
-      //   (assumes all common link sources are grouped together in file)
-      if( prev_source !== link.source.id ) {
-        prev_source = link.source.id;
-      }
 
       // update link source and target if attributes change
       link.source = nodeById.get(link.source.id);
@@ -132,7 +122,7 @@ function update() {
         links.push(link);
         return;
       // if the edge should not be shown, don't push
-      } else if( link.source.showNode !== true ) {
+      } else if( link.source.showNode !== true && link.source.group === link.target.group) {
         return;
       }
 
@@ -144,20 +134,7 @@ function update() {
       // if target node does not exist, push onto list and have its group equal to the source's group
       if(target_node === undefined) {
         nodes.push(link.target);
-        link.target.group = link.source.group;
-        link.target.prev_source = link.source.id;
-      } /*else {         
-        // if the target node has a degree > 0,
-        if( prev_source !== link.target.prev_source ) {
-          var group_name = link.target.prev_source + "," + link.source.id;
-          if( color_group.has(group_name) !== true ) {
-          // assign it a new color group
-            color_group.set(group_name, ++highest_group);
-          }
-          link.target.prev_source = group_name;
-          link.target.group = highest_group;
-        }
-      }*/
+      }
       links.push(link);
   });
 
@@ -169,7 +146,6 @@ function update() {
 
   // Update links.
   link_data = link_data.data(links, function(d) { return d.id; });
-
   link_data.exit().remove();
 
   // add links, with stroke-width and opacity dependent on strength
@@ -183,7 +159,6 @@ function update() {
   node_data = node_data.data(nodes, function(d) { return d.id; });
 
   node_data.exit().remove();  
-
   // add nodes, with mouse events added
   node_data.enter().append("g")
       .attr("class", "node")
@@ -210,10 +185,14 @@ function update() {
 
   // create literal node circles
   node_data.append("circle")
-      .attr("r", function(d) { return d.value/100; });
+      .attr("r", function(d) {
+return node_size(d);
+        /*if( source_nodes.has(d.id) )
+          return d.value*2;
+        return d.value/2;*/ });
 
   // add text; if source node, always show text
-  node_data.append("text")
+  node_data.insert("text", ".link")
       .attr("dx", 14)
       .attr("dy", ".5em")
       .text(function(d) { return d.id; })
@@ -225,6 +204,13 @@ function update() {
       });
 
 
+}
+
+function node_size(d){
+  //  return 11 -  (( (d.value - min_value)/(max_value - min_value) ) * 10 );
+  //  return 21 - ( ( (d.value - min_value)/(max_value - min_value) ) * 20);
+  //  return Math.pow( 11 - ( ( (d.value - min_value)/(max_value - min_value) ) * 10), 3)/40;
+  return 1/d.value * max_value;
 }
 
 // Toggle children on click.
