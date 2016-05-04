@@ -160,10 +160,7 @@ function update() {
   link_data.enter().insert("line", ".node")
       .attr("class", "link")
       .style("stroke-width", function(d) { return ( (d.value - min_link_value)/(max_link_value - min_link_value) ) * 15; })
-      .style("opacity", function(d) { 
-console.log(Math.pow(Math.log(d.value), 2) - 30);
-//console.log( ( ( Math.log(d.value)/10 ) - 0.45 )); 
-        return ( Math.log(d.value)/10 ) - 0.45; });
+      .style("opacity", function(d) { return ( Math.log(d.value)/10 ) - 0.45; });
 
 
   // Update nodes.
@@ -192,7 +189,7 @@ console.log(Math.pow(Math.log(d.value), 2) - 30);
       .on("click", click);
 
   // color nodes
-  node_data.attr("fill", function(d) { console.log(colors(d.group)); return colors(d.group); })
+  node_data.attr("fill", function(d) { return colors(d.group); })
 
   // create literal node circles
   node_data.append("circle")
