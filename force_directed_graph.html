@@ -96,7 +96,8 @@ function update() {
   var links = [];
   var prev_source;
   var color_group = d3.map();
-  highest_group = 0;
+
+/*  highest_group = 0;
 
   // find the highest group,
   //   and assign all non-source nodes 'undefined' for previous nodes they have connected to and set their group to 0
@@ -111,6 +112,7 @@ function update() {
         node.group = 0;
       }
   });
+*/
 
   data.links.forEach(function(link) {
 
@@ -144,19 +146,18 @@ function update() {
         nodes.push(link.target);
         link.target.group = link.source.group;
         link.target.prev_source = link.source.id;
-      } else {         
+      } /*else {         
         // if the target node has a degree > 0,
         if( prev_source !== link.target.prev_source ) {
           var group_name = link.target.prev_source + "," + link.source.id;
           if( color_group.has(group_name) !== true ) {
           // assign it a new color group
-console.log(group_name);
             color_group.set(group_name, ++highest_group);
           }
           link.target.prev_source = group_name;
           link.target.group = highest_group;
         }
-      }
+      }*/
       links.push(link);
   });
 
