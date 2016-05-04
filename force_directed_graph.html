@@ -39,7 +39,7 @@ var force = d3.layout.force()
     .on("tick", tick);
 
 // gives colors for each source node and nodes of multiple in-degrees
-var colors = d3.scale.category10();
+var colors = d3.scale.category20();
 
 // provides the source nodes (can be switched over to d3's selection functions, but may be more efficient)
 //   (one-time insert)
@@ -192,15 +192,12 @@ console.log(Math.pow(Math.log(d.value), 2) - 30);
       .on("click", click);
 
   // color nodes
-  node_data.attr("fill", function(d) { return colors(d.group); })
+  node_data.attr("fill", function(d) { console.log(colors(d.group)); return colors(d.group); })
 
   // create literal node circles
   node_data.append("circle")
-      .attr("r", function(d) {
-return node_size(d);
-        /*if( source_nodes.has(d.id) )
-          return d.value*2;
-        return d.value/2;*/ });
+      .attr("r", function(d) { return node_size(d); })
+      .style("stroke", function(d) { return d3.rgb(colors(d.group)).darker(); });
 
   // add text; if source node, always show text
   node_data.insert("text", "node.circle")
@@ -208,6 +205,7 @@ return node_size(d);
       .attr("dy", ".5em")
       .text(function(d) { return d.id; })
       .style("fill", "black")
+      .style("text-shadow", "0px 0px 2px #FFFFFF")
       .style("font-weight", "bold")
       .style("visibility",function(d) {
         if( source_nodes.has(d.id) )
