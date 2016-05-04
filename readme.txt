@@ -9,3 +9,7 @@ To run:
 - Set up a local server using "python -m SimpleHTTPServer 8888"
 - Go to "localhost:8888" in your browser
 - Click on "force_directed_graph.html"
+
+To generate your Python data: 
+- The script takes at least 2 arguments: the number of artists to be read, and the artists following in string
+- The script only handles 3 bands - so only 4 arguments

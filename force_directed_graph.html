@@ -39,7 +39,7 @@ var force = d3.layout.force()
     .on("tick", tick);
 
 // gives colors for each source node and nodes of multiple in-degrees
-var colors = d3.scale.category20();
+var colors = d3.scale.category10();
 
 // provides the source nodes (can be switched over to d3's selection functions, but may be more efficient)
 //   (one-time insert)
@@ -88,6 +88,7 @@ d3.json("graph_data.json", function(error, json) {
   json.links.forEach(function(link) {
       link.source = nodeById.get(link.source);
       link.target = nodeById.get(link.target);
+      link.group = link.source.group;
   });
 
   // save the JSON file
@@ -159,6 +160,7 @@ function update() {
   // add links, with stroke-width and opacity dependent on strength
   link_data.enter().insert("line", ".node")
       .attr("class", "link")
+      .style("stroke", function(d) { return d3.rgb(colors(d.group)).brighter(); })
       .style("stroke-width", function(d) { return ( (d.value - min_link_value)/(max_link_value - min_link_value) ) * 15; })
       .style("opacity", function(d) { return ( Math.log(d.value)/10 ) - 0.45; });
 
