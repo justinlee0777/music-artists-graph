@@ -37,12 +37,6 @@ def formatArtist(artist, join_character):
 		capitalized_input_list.append(word.capitalize())
 	return join_character.join(capitalized_input_list)
 
-
-# def dateDifference(date):
-# 	today = datetime.datetime.today()
-# 	date = datetime.datetime.strptime(date, '%Y-%m-%d')
-# 	return abs((date-today).days)
-
 # Assign the group based on the nodes value
 def assignGroup(artist):
 	value = 0
@@ -106,11 +100,6 @@ def findRelatedArtists(events, user_input):
 	 		score = 30
 	 		if event_type == 'Festival':
 	 			score = 20
-
-	 		# max_date_difference = 365*10
-	 		# date_difference = dateDifference(event_date)
-	 		# if date_difference > max_date_difference:
-	 		# 	date_difference = max_date_difference
 
 	 		# Create the links and store them with their scores
 	 		link_tuple1 = (user_input, artist_name)
