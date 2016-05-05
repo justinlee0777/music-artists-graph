@@ -20,8 +20,6 @@
 // http://bl.ocks.org/mbostock/4062045
 // https://bl.ocks.org/mbostock/1062288
 
-// add individual ids to each link
-
 // size of graph space
 var width = 1400,
     height = 900
@@ -107,6 +105,7 @@ function update() {
   var min_link_value = Number.MAX_SAFE_INTEGER;
   var color_group = d3.map();
 
+  // push all source nodes into each iteration of the graph
   data.nodes.forEach(function(node) {
       if( source_nodes.has(node.id) === true ) {
         nodes.push(node);
@@ -115,6 +114,7 @@ function update() {
 
   data.links.forEach(function(link) {
 
+      // find maximum/minimum edge value
       if(link.value > max_link_value) {
         max_link_value = link.value;
       } else if(link.value < min_link_value) {
@@ -216,6 +216,7 @@ function update() {
 }
 
 function node_size(d){
+  // values we've tried before for the node size
   //  return 11 -  (( (d.value - min_value)/(max_value - min_value) ) * 10 );
   //  return 21 - ( ( (d.value - min_value)/(max_value - min_value) ) * 20);
   //  return Math.pow( 11 - ( ( (d.value - min_value)/(max_value - min_value) ) * 10), 3)/40;
